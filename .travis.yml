@@ -12,15 +12,13 @@ python:
 # command to install dependencies
 
 before_install:
-  - cd python
+  - cd $TRAVIS_BUILD_DIR/python
 install:
   - python setup.py install  
 # command to run tests
 script: 
   - echo $(pwd)
   - echo "`pwd`"
-  - echo "pwd"
-  - cd
   - echo $(pwd)
-  - cd python/tests/keyczar_tests && python alltests.py 
+  - cd $TRAVIS_BUILD_DIR/tests/keyczar_tests && python alltests.py 
 
