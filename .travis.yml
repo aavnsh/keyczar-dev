@@ -8,8 +8,7 @@ python:
   - "3.5"
   - "3.6-dev" # 3.6 development branch
   - "nightly" # currently points to 3.7-dev
- command to install dependencies
-
+ 
 before_install:
   - cd $TRAVIS_BUILD_DIR/python
 install:
