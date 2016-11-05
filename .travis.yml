@@ -17,5 +17,7 @@ install:
   - python setup.py install  
 # command to run tests
 script: 
-  - cd tests && python alltests.py 
+  - print `pwd`
+  - cd
+  - cd python/tests/keyczar_tests && python alltests.py 
 
