@@ -47,10 +47,10 @@ except ImportError:
 # overideable crypt library selection
 ACTIVE_CRYPT_LIB = 'm2crypto' if EVP else 'pycrypto'
 
-import errors
-import keyczar
-import keyinfo
-import util
+from . import errors
+from . import keyczar
+from . import keyinfo
+from . import util
 
 #TODO: Note that simplejson deals in Unicode strings. So perhaps we should
 #modify all Read() methods to wrap data obtained from simplejson with str().
@@ -259,15 +259,15 @@ class AesKey(SymmetricKey):
       @return: EVP.Cipher
       """
       assert selector in self.OP_TYPES, 'Invalid selector :%s' %selector
-      if selector == self.OP_ACTIVE and (len(self.ciphers.keys()) > 1 or 
-                                         not len(self.ciphers.keys())):
+      if selector == self.OP_ACTIVE and (len(list(self.ciphers.keys())) > 1 or 
+                                         not len(list(self.ciphers.keys()))):
         assert 0, 'If both encryption and decryption used then selector must \
             be OP_ENCRYPT or OP_DECRYPT and at least 1 must be active'
 
       cipher = None
       if selector == self.OP_ACTIVE:
         # should only be one cipher active
-        cipher = self.ciphers.values()[0]
+        cipher = list(self.ciphers.values())[0]
       else:
         cipher = self.ciphers.get(selector)
         # have we been created a cipher for this selector yet?

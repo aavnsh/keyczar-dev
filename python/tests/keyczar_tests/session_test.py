@@ -26,7 +26,7 @@ from keyczar import keyczar
 from keyczar import util
 from keyczar import errors
 
-TEST_DATA = os.path.realpath(os.path.join(os.getcwd(), "..", "..", "testdata"))
+TEST_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "testdata")
 
 
 def _get_test_dir(subdir):

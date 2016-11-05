@@ -22,25 +22,24 @@ encrypt, decrypt, sign and verify.
 
 import os
 import warnings
+import sys
 
-import errors
+from . import errors
 import json
-import keydata
-import keyinfo
-import keys
-import readers
-import writers
-import util
+from . import keydata
+from . import keyinfo
+from . import keys
+from . import readers
+from . import writers
+from . import util
 
 VERSION = 0
 VERSION_BYTE = '\x00'
 KEY_HASH_SIZE = 4
 HEADER_SIZE = 1 + KEY_HASH_SIZE
 
-class Keyczar(object):
+class Keyczar(object, metaclass=util.ABCMeta):
   """Abstract Keyczar base class."""
-
-  __metaclass__ = util.ABCMeta
 
   def __init__(self, reader):
     self.metadata = keydata.KeyMetadata.Read(reader.GetMetadata())
@@ -67,7 +66,7 @@ class Keyczar(object):
       self._keys[version] = key
       self._keys[key.hash_id] = key
 
-  versions = property(lambda self: [k for k in self._keys.keys()
+  versions = property(lambda self: [k for k in list(self._keys.keys())
                                     if isinstance(k, keydata.KeyVersion)],
                       doc="""List of versions in key set.""")
   primary_key = property(lambda self: self.GetKey(self.primary_version),
@@ -181,9 +180,9 @@ class GenericKeyczar(Keyczar):
       self.primary_version = version
 
     if size < self.default_size:
-      print("WARNING: %d-bit key size is less than recommended default key"
+      print(("WARNING: %d-bit key size is less than recommended default key"
             "size of %d bits for %s keys."
-            % (size, self.default_size, str(self.metadata.type)))
+            % (size, self.default_size, str(self.metadata.type))))
 
     # Make sure no keys collide on their identifiers
     while True:
@@ -288,7 +287,7 @@ class GenericKeyczar(Keyczar):
     write an unencrypted key set.
     @type encrypter: Encrypter
     """
-    if isinstance(writer, basestring):
+    if isinstance(writer, str):
       writer = writers.CreateWriter(writer)
       warnings.warn(
         'Using a string as the writer is deprecated. Use writers.CreateWriter', 

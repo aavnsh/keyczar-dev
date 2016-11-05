@@ -33,7 +33,8 @@ from keyczar import util
 from keyczar import keys
 from keyczar import keyinfo
 
-TEST_DATA = os.path.realpath(os.path.join(os.getcwd(), "..", "..", "testdata"))
+TEST_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "testdata")
+
 
 class BaseCrypterTest(unittest.TestCase):
 
@@ -603,6 +604,7 @@ class CreateWriterTest(unittest.TestCase):
     All others in writers.py must be instantiated via their constructor.
     """
     location = os.path.join(TEST_DATA, 'aes')
+    print(location)
     self.assertTrue(os.path.isdir(location))
     # make sure all writers are available
     util.ImportBackends()

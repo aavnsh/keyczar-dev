@@ -20,7 +20,7 @@ Utility functions for keyczar package.
 """
 
 import base64
-import cPickle
+import pickle
 import codecs
 import functools
 import math
@@ -45,7 +45,7 @@ except ImportError:
 
     def __init__(self, errno, strerror, characters_written=0):
       super(IOError, self).__init__(errno, strerror)
-      if not isinstance(characters_written, (int, long)):
+      if not isinstance(characters_written, int):
         raise TypeError("characters_written must be a integer")
       self.characters_written = characters_written
 
@@ -53,7 +53,7 @@ from pyasn1.codec.der import decoder
 from pyasn1.codec.der import encoder
 from pyasn1.type import univ
 
-import errors
+from . import errors
 
 try:
   from abc import ABCMeta, abstractmethod, abstractproperty
@@ -135,12 +135,12 @@ def ParsePkcs8(pkcs8):
     if version != 0:
       raise errors.KeyczarError("Unrecognized RSA Private Key Version")
     for i in range(len(RSA_PARAMS)):
-      params[RSA_PARAMS[i]] = long(key[i+1])
+      params[RSA_PARAMS[i]] = int(key[i+1])
   elif oid == DSA_OID:
     alg_params = ParseASN1Sequence(alg_params)
     for i in range(len(DSA_PARAMS)):
-      params[DSA_PARAMS[i]] = long(alg_params[i])
-    params['x'] = long(key)
+      params[DSA_PARAMS[i]] = int(alg_params[i])
+    params['x'] = int(key)
   else:
     raise errors.KeyczarError("Unrecognized AlgorithmIdentifier: not RSA/DSA")
   return params
@@ -178,12 +178,12 @@ def ParseX509(x509):
   # then convert to OCTET STRING which can be ASN.1 decoded
   params = {}
   if oid == RSA_OID:
-    [params['n'], params['e']] = [long(x) for x in ParseASN1Sequence(pubkey)]
+    [params['n'], params['e']] = [int(x) for x in ParseASN1Sequence(pubkey)]
   elif oid == DSA_OID:
-    vals = [long(x) for x in ParseASN1Sequence(alg_params)]
+    vals = [int(x) for x in ParseASN1Sequence(alg_params)]
     for i in range(len(DSA_PARAMS)):
       params[DSA_PARAMS[i]] = vals[i]
-    params['y'] = long(pubkey)
+    params['y'] = int(pubkey)
   else:
     raise errors.KeyczarError("Unrecognized AlgorithmIdentifier: not RSA/DSA")
   return params
@@ -237,8 +237,8 @@ def ParseDsaSig(sig):
   seq = decoder.decode(sig)[0]
   if len(seq) != 2:
     raise errors.KeyczarError("Illegal DSA signature.")
-  r = long(seq.getComponentByPosition(0))
-  s = long(seq.getComponentByPosition(1))
+  r = int(seq.getComponentByPosition(0))
+  s = int(seq.getComponentByPosition(1))
   return (r, s)
 
 def MakeEmsaMessage(msg, modulus_size):
@@ -288,7 +288,7 @@ def IntToBytes(n):
 
 def BytesToLong(byte_string):
   l = len(byte_string)
-  return long(sum([ord(byte_string[i]) * 256**(l - 1 - i) for i in range(l)]))
+  return int(sum([ord(byte_string[i]) * 256**(l - 1 - i) for i in range(l)]))
 
 def Xor(a, b):
   """Return a ^ b as a byte string where a and b are byte strings."""
@@ -796,7 +796,7 @@ class IncrementalBase64WSStreamReader(codecs.StreamReader, object):
         data = self.bytebuffer + newdata
         try:
           newchars, decodedbytes = self.decode(data, self.errors)
-        except UnicodeDecodeError, exc:
+        except UnicodeDecodeError as exc:
           if firstline:
             newchars, decodedbytes = self.decode(data[:exc.start], self.errors)
             lines = newchars.splitlines(True)
@@ -855,7 +855,7 @@ def Memoize(func):
 
   @functools.wraps(func)
   def memo(*args,**kwargs):
-    pickled_args = cPickle.dumps((args, sorted(kwargs.iteritems())))
+    pickled_args = pickle.dumps((args, sorted(kwargs.items())))
 
     if pickled_args not in memory:
       memory[pickled_args] = func(*args,**kwargs)

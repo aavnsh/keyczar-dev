@@ -21,11 +21,11 @@ A Reader supports reading metadata and key info for key sets.
 
 import os                
 
-import errors
-import keydata
-import keyinfo
-import keys
-import util
+from . import errors
+from . import keydata
+from . import keyinfo
+from . import keys
+from . import util
 
 def CreateReader(location):
   """Factory function for Reader's
@@ -43,10 +43,8 @@ def CreateReader(location):
   raise errors.KeyczarError(
     "Unable to create a reader for %s. Does the location exist?" % location)
 
-class Reader(object):
+class Reader(object, metaclass=util.ABCMeta):
   """Interface providing supported methods (no implementation)."""
-
-  __metaclass__ = util.ABCMeta
 
   @util.abstractmethod
   def GetMetadata(self):
@@ -113,6 +111,8 @@ class FileReader(Reader):
   @classmethod
   def CreateReader(cls, location):
     result = None
+    location = str(location) # This fixes the case in case the location is
+                             # an instance of Path (from django-environ)
     if os.path.exists(location):
       result = FileReader(location)
     return result

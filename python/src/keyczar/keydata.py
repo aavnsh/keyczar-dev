@@ -25,8 +25,8 @@ try:
 except ImportError:
   import json
 
-import errors
-import keyinfo
+from . import errors
+from . import keyinfo
 
 class KeyMetadata(object):
   """Encodes metadata for a keyset with a name, purpose, type, and versions."""
@@ -38,7 +38,7 @@ class KeyMetadata(object):
     self.encrypted = encrypted
     self.__versions = {}  # dictionary from version nums to KeyVersions
 
-  versions = property(lambda self: self.__versions.values())
+  versions = property(lambda self: list(self.__versions.values()))
 
   def __str__(self):
     return json.dumps({"name": self.name,

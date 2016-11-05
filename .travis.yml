@@ -19,5 +19,3 @@ script:
   - echo "`pwd`"
   - echo $(pwd)
   - cd $TRAVIS_BUILD_DIR/python/tests/keyczar_tests && python alltests.py 
-  - cd $TRAVIS_BUILD_DIR/interop && python interop_unit_test.py
-
